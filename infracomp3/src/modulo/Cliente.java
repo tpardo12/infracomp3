@@ -5,6 +5,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.Signature;
 import java.security.SignatureException;
 
@@ -17,7 +18,15 @@ public class Cliente {
         firma.initVerify(publicKey);
         firma.update(reto.getBytes());
         boolean isVerified = firma.verify(signatureBytes);
-        System.out.println("Signature verification status: " + isVerified);
+        System.out.println("Verificacion de la firma: " + isVerified);
+    }
+    public String generarReto ()
+    {
+
+        SecureRandom rand = new SecureRandom();
+        int rand_int1 = rand.nextInt(2000000000);
+        String str1 = Integer.toString(rand_int1); 
+        return str1;
     }
 
 

@@ -12,9 +12,10 @@ public class Main {
         
         Servidor servidor = new Servidor();
         Cliente cliente = new Cliente();
-        servidor.firmar("pepe"); 
-
-        cliente.verificarfirma(servidor.getFirma(), servidor.getLlavepublica(), servidor.getSb(), "pepe");
+        String reto = cliente.generarReto();
+        servidor.firmar(reto); 
+        System.out.println(reto);
+        cliente.verificarfirma(servidor.getFirma(), servidor.getLlavepublica(), servidor.getSb(), reto);
        
     }
 
