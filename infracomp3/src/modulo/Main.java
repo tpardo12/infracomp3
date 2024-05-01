@@ -15,8 +15,9 @@ public class Main {
         String reto = cliente.generarReto();
         servidor.firmar(reto); 
         System.out.println(reto);
-        cliente.verificarfirma(servidor.getFirma(), servidor.getLlavepublica(), servidor.getSb(), reto);
+        cliente.verificarfirma( servidor.getLlavepublica(), servidor.getSb(), reto);
        
+        
     }
 
    
