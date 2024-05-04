@@ -1,5 +1,6 @@
 package modulo;
 
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -15,10 +16,37 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Random;
 
 import javax.crypto.Cipher;
 
 public class Cliente {
+
+    
+    BigInteger g = new BigInteger("2");
+
+    public BigInteger generarGY (){
+
+        BigInteger maxLimit = new BigInteger("500000");
+        BigInteger minLimit = new BigInteger("100000");
+        BigInteger bigInteger = maxLimit.subtract(minLimit);
+        Random randNum = new Random();
+        int len = maxLimit.bitLength();
+        BigInteger res = new BigInteger(len, randNum);
+        if (res.compareTo(minLimit) < 0)
+           res = res.add(minLimit);
+        if (res.compareTo(bigInteger) >= 0)
+           res = res.mod(bigInteger).add(minLimit);
+
+        BigInteger result = BigInteger.ONE;
+           while (res.signum() > 0) {
+                    if (res.testBit(0)) result = result.multiply(g);
+                    g = g.multiply(g);
+                    res = res.shiftRight(1);
+            }
+   
+        return result;
+    }
 
 
     public Boolean verificarfirma (   PublicKey publicKey, byte[] signatureBytes, String reto) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException{

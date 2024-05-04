@@ -27,6 +27,7 @@ public class ClienteS {
         DataInputStream in; 
         DataOutputStream out; 
         ObjectInputStream intO;
+        ObjectOutputStream outO;
 
         
         try {
@@ -35,6 +36,7 @@ public class ClienteS {
             in = new DataInputStream(sc.getInputStream());
             out =new DataOutputStream(sc.getOutputStream());
             intO = new ObjectInputStream(sc.getInputStream());
+            outO = new ObjectOutputStream(sc.getOutputStream());
 
             Cliente cliente = new Cliente();
             String reto = cliente.generarReto();
@@ -52,7 +54,12 @@ public class ClienteS {
             byte[] firmaValores =  (byte[])  intO.readObject();   
             String valores = p.toString() + g.toString() + gx.toString();
             boolean vfirmaValores = cliente.verificarfirma(llavepublica,firmaValores, valores); 
+            out.writeBoolean(vfirmaValores);
+            BigInteger gy = cliente.generarGY();
+            outO.writeObject(gy);
             
+            
+
 
       
         } catch (IOException es) {

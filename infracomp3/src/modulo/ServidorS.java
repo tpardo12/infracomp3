@@ -3,6 +3,7 @@ package modulo;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.net.ServerSocket;
@@ -20,8 +21,9 @@ public class ServidorS {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeyException
      * @throws SignatureException
+     * @throws ClassNotFoundException 
      */
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException  {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, ClassNotFoundException  {
         
         ServerSocket servidor = null;
         Socket sc = null; 
@@ -29,6 +31,7 @@ public class ServidorS {
         DataInputStream in; 
         DataOutputStream out; 
         ObjectOutputStream outO;
+        ObjectInputStream intO;
 
         try {
 
@@ -42,6 +45,7 @@ public class ServidorS {
                 in = new DataInputStream(sc.getInputStream());
                 out =new DataOutputStream(sc.getOutputStream());
                 outO = new ObjectOutputStream(sc.getOutputStream());
+                intO = new ObjectInputStream(sc.getInputStream());
     
                 String mensaje = in.readUTF();                                      // reto del cliente
                 byte[] firmaReto = serv.firmar(mensaje);   
@@ -49,8 +53,8 @@ public class ServidorS {
                 PublicKey llavepublica = serv.getLlavepublica();                   
                 outO.writeObject(firmaReto);                                        // envia firma
                 outO.writeObject(llavepublica);                                // envia k+
-                boolean vfirma = in.readBoolean();
-                if (vfirma == false) {
+                boolean vfirmaReto = in.readBoolean();
+                if (vfirmaReto == false) {
                     sc.close();
                 }
                 BigInteger p = serv.getP();
@@ -61,6 +65,13 @@ public class ServidorS {
                 outO.writeObject(gx);
                 byte[] firmaValores = serv.firmar( p.toString() + g.toString() + gx.toString()); 
                 outO.writeObject(firmaValores);
+                boolean vfirmaValores = in.readBoolean();
+                if (vfirmaValores == false){
+                    sc.close();
+                }
+                BigInteger gy = (BigInteger) intO.readObject();
+
+
             }
             
         } catch (IOException ex) {
