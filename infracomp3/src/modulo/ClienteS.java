@@ -51,12 +51,18 @@ public class ClienteS {
             BigInteger p = (BigInteger) intO.readObject();
             BigInteger g = (BigInteger) intO.readObject();
             BigInteger gx = (BigInteger) intO.readObject();
+            BigInteger y = cliente.getY();
             byte[] firmaValores =  (byte[])  intO.readObject();   
             String valores = p.toString() + g.toString() + gx.toString();
             boolean vfirmaValores = cliente.verificarfirma(llavepublica,firmaValores, valores); 
             out.writeBoolean(vfirmaValores);
             BigInteger gy = cliente.generarGY();
+           
             outO.writeObject(gy);
+            BigInteger kab = (gx.modPow(y, p));
+
+            System.out.println(kab);
+
             
             
 

@@ -24,11 +24,13 @@ public class Cliente {
 
     
     BigInteger g = new BigInteger("2");
+    BigInteger  y  = new BigInteger("0");
 
-    public BigInteger generarGY (){
 
-        BigInteger maxLimit = new BigInteger("500000");
-        BigInteger minLimit = new BigInteger("100000");
+    public Cliente(){
+
+        BigInteger maxLimit = new BigInteger("5000");
+        BigInteger minLimit = new BigInteger("1000");
         BigInteger bigInteger = maxLimit.subtract(minLimit);
         Random randNum = new Random();
         int len = maxLimit.bitLength();
@@ -38,11 +40,20 @@ public class Cliente {
         if (res.compareTo(bigInteger) >= 0)
            res = res.mod(bigInteger).add(minLimit);
 
+        this.y = res;
+
+
+    }
+
+    public BigInteger generarGY (){
+
+        
+
         BigInteger result = BigInteger.ONE;
-           while (res.signum() > 0) {
-                    if (res.testBit(0)) result = result.multiply(g);
+           while (y.signum() > 0) {
+                    if (y.testBit(0)) result = result.multiply(g);
                     g = g.multiply(g);
-                    res = res.shiftRight(1);
+                    y = y.shiftRight(1);
             }
    
         return result;
@@ -75,6 +86,27 @@ public class Cliente {
         KeyFactory factory = KeyFactory.getInstance("SHA256withRSA");
         PublicKey public_key = (ECPublicKey) factory.generatePublic(new X509EncodedKeySpec(byte_pubkey));
         return public_key;
+    }
+
+    public BigInteger powN(BigInteger x, BigInteger y){
+
+        BigInteger result = BigInteger.ONE;
+        while (y.signum() > 0) {
+                 if (y.testBit(0)) result = result.multiply(x);
+                 x = x.multiply(x);
+                 y = y.shiftRight(1);
+         }
+        
+
+        return result;
+    }
+
+    public BigInteger getG() {
+        return g;
+    }
+
+    public BigInteger getY() {
+        return y;
     }
 
 

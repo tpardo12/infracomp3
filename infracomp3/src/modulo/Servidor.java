@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -33,6 +34,9 @@ public class Servidor {
     
 
 
+    
+
+
     public  Servidor() throws NoSuchAlgorithmException{
 
         //creacion de llaves
@@ -44,8 +48,8 @@ public class Servidor {
         PrivateKey privateKey = keyPair.getPrivate();
 
         // creacion de x
-        BigInteger maxLimit = new BigInteger("500000");
-        BigInteger minLimit = new BigInteger("100000");
+        BigInteger maxLimit = new BigInteger("5000");
+        BigInteger minLimit = new BigInteger("1000");
         BigInteger bigInteger = maxLimit.subtract(minLimit);
         Random randNum = new Random();
         int len = maxLimit.bitLength();
@@ -62,6 +66,7 @@ public class Servidor {
 
     }
 
+
     public  byte[] firmar(String texto)  throws NoSuchAlgorithmException, InvalidKeyException, SignatureException{
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(llaveprivada);
@@ -72,6 +77,27 @@ public class Servidor {
         
         return signatureBytes;
 
+    }
+    
+    public String digest ( String x){
+         try { 
+           
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            byte[] messageDigest = md.digest(x.getBytes()); 
+            BigInteger no = new BigInteger(1, messageDigest); 
+            String hashtext = no.toString(16); 
+  
+            String kab = hashtext.substring(0, 64);
+            String kmac = hashtext.substring(65, 128);
+            
+            return kab ;
+            
+        } 
+  
+         
+        catch (NoSuchAlgorithmException e) { 
+            throw new RuntimeException(e); 
+        } 
     }
 
     public PublicKey getLlavepublica() {
@@ -107,6 +133,17 @@ public class Servidor {
         return result;
         
     }
+    public BigInteger powN(BigInteger x, BigInteger y){
+
+        BigInteger result = BigInteger.ONE;
+        while (y.signum() > 0) {
+                 if (y.testBit(0)) result = result.multiply(x);
+                 x = x.multiply(x);
+                 y = y.shiftRight(1);
+         }
+
+        return result;
+    }
 
     public String keytostring(PublicKey llave){
         byte[] byte_pubkey = llave.getEncoded();
@@ -115,6 +152,10 @@ public class Servidor {
         return str_key;
     }
    
+
+    public BigInteger getX() {
+        return x;
+    }
    
 
 

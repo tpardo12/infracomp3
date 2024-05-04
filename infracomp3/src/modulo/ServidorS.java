@@ -59,7 +59,9 @@ public class ServidorS {
                 }
                 BigInteger p = serv.getP();
                 BigInteger g = serv.getG();
+                BigInteger x = serv.getX();
                 BigInteger gx = serv.getGX();
+               
                 outO.writeObject(p);
                 outO.writeObject(g); 
                 outO.writeObject(gx);
@@ -70,6 +72,11 @@ public class ServidorS {
                     sc.close();
                 }
                 BigInteger gy = (BigInteger) intO.readObject();
+                
+                BigInteger kab = (gy.modPow(x, p));
+                String longitud = serv.digest(kab.toString());
+                System.out.println(longitud);
+            
 
 
             }
