@@ -73,9 +73,13 @@ public class ServidorS {
                 }
                 BigInteger gy = (BigInteger) intO.readObject();
                 
-                BigInteger kab = (gy.modPow(x, p));
-                String longitud = serv.digest(kab.toString());
-                System.out.println(longitud);
+                BigInteger kmaster = (gy.modPow(x, p));
+                serv.digest(kmaster.toString());
+                String kab = serv.getKab();
+                String kmac = serv.getKmac();
+
+                System.out.println("kab  " + kab);
+                System.out.println("kmac " +  kmac);
             
 
 

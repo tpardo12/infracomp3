@@ -59,9 +59,13 @@ public class ClienteS {
             BigInteger gy = cliente.generarGY();
            
             outO.writeObject(gy);
-            BigInteger kab = (gx.modPow(y, p));
+            BigInteger kmaster = (gx.modPow(y, p));
+            cliente.digest(kmaster.toString());
+            String kab = cliente.getKab();
+            String kmac = cliente.getKmac();
 
-            System.out.println(kab);
+            System.out.println("kab  " + kab);
+            System.out.println("kmac " +  kmac);
 
             
             

@@ -28,7 +28,19 @@ public class Servidor {
 
     BigInteger g = new BigInteger("2");
     SecureRandom rand = new SecureRandom();
+    String kab;
+    public String getKab() {
+        return kab;
+    }
+
+
+    String kmac;
     
+
+    public String getKmac() {
+        return kmac;
+    }
+
 
     BigInteger x = new BigInteger("0");
     
@@ -79,7 +91,7 @@ public class Servidor {
 
     }
     
-    public String digest ( String x){
+    public void digest ( String x){
          try { 
            
             MessageDigest md = MessageDigest.getInstance("SHA-512");
@@ -88,9 +100,10 @@ public class Servidor {
             String hashtext = no.toString(16); 
   
             String kab = hashtext.substring(0, 64);
-            String kmac = hashtext.substring(65, 128);
-            
-            return kab ;
+            String kmac = hashtext.substring(64, 128);
+            System.out.println("compelto " + hashtext);
+            this.kab = kab;
+            this.kmac = kmac;
             
         } 
   

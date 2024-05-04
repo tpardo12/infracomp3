@@ -5,6 +5,7 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
@@ -25,6 +26,8 @@ public class Cliente {
     
     BigInteger g = new BigInteger("2");
     BigInteger  y  = new BigInteger("0");
+    private String kab;
+    private String kmac;
 
 
     public Cliente(){
@@ -45,6 +48,25 @@ public class Cliente {
 
     }
 
+    public void digest ( String x){
+         try { 
+           
+            MessageDigest md = MessageDigest.getInstance("SHA-512");
+            byte[] messageDigest = md.digest(x.getBytes()); 
+            BigInteger no = new BigInteger(1, messageDigest); 
+            String hashtext = no.toString(16); 
+  
+            String kab = hashtext.substring(0, 64);
+            String kmac = hashtext.substring(64, 128);
+            System.out.println("compelto " + hashtext);
+            this.kab = kab;
+            this.kmac = kmac;
+            
+        } 
+        catch (NoSuchAlgorithmException e) { 
+            throw new RuntimeException(e); 
+        } 
+    }
     public BigInteger generarGY (){
 
         
@@ -107,6 +129,14 @@ public class Cliente {
 
     public BigInteger getY() {
         return y;
+    }
+
+    public String getKab() {
+        return kab;
+    }
+
+    public String getKmac() {
+        return kmac;
     }
 
 
