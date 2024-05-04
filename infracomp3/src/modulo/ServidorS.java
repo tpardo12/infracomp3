@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -43,12 +44,22 @@ public class ServidorS {
                 outO = new ObjectOutputStream(sc.getOutputStream());
     
                 String mensaje = in.readUTF();                                      // reto del cliente
-                byte[] firma = serv.firmar(mensaje);                               // firma el reto 
-                PublicKey llavepublica = serv.getLlavepublica();           
-                outO.writeObject(firma);                                        // envia firma
+                byte[] firmaReto = serv.firmar(mensaje);   
+                System.out.println(firmaReto);                             // firma el reto 
+                PublicKey llavepublica = serv.getLlavepublica();                   
+                outO.writeObject(firmaReto);                                        // envia firma
                 outO.writeObject(llavepublica);                                // envia k+
-
+                boolean vfirma = in.readBoolean();
+                if (vfirma == false) {
+                    sc.close();
+                }
+                outO.writeObject(serv.getP());
+                outO.writeObject(serv.getG()); 
+                BigInteger gx = serv.getGX();
+                outO.writeObject(gx);
+                byte[] firmaValores = serv.firmar(serv.getP().toString()  ); 
                 
+                outO.writeObject(firmaValores);
             }
             
         } catch (IOException ex) {

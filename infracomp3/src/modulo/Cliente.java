@@ -21,13 +21,15 @@ import javax.crypto.Cipher;
 public class Cliente {
 
 
-    public void verificarfirma (   PublicKey publicKey, byte[] signatureBytes, String reto) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException{
+    public Boolean verificarfirma (   PublicKey publicKey, byte[] signatureBytes, String reto) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException{
         
         Signature verificador = Signature.getInstance("SHA256withRSA");
         verificador.initVerify(publicKey);
         verificador.update(reto.getBytes());
         boolean isVerified = verificador.verify(signatureBytes);
         System.out.println("Verificacion de la firma: " + isVerified);
+
+        return isVerified;
     }
     
     public String generarReto ()

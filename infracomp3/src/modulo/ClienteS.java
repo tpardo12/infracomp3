@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -40,10 +41,19 @@ public class ClienteS {
 
             out.writeUTF(reto);
 
-            byte[] firma =  (byte[])  intO.readObject();                           
+            byte[] firmaReto =  (byte[])  intO.readObject();       
+            System.out.println(firmaReto);                    
             PublicKey llavepublica = (PublicKey)  intO.readObject();      
- 
-            cliente.verificarfirma(llavepublica,firma, reto); 
+            boolean vfirmaReto = cliente.verificarfirma(llavepublica,firmaReto, reto); 
+            out.writeBoolean(vfirmaReto);
+            BigInteger p = (BigInteger) intO.readObject();
+            BigInteger g = (BigInteger) intO.readObject();
+            BigInteger gx = (BigInteger) intO.readObject();
+            byte[] firmaValores =  (byte[])  intO.readObject();   
+           
+            boolean vfirmaValores = cliente.verificarfirma(llavepublica,firmaValores, p.toString()  ); 
+            
+
       
         } catch (IOException es) {
             // TODO: handle exception
