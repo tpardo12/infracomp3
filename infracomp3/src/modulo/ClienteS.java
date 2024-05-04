@@ -50,8 +50,8 @@ public class ClienteS {
             BigInteger g = (BigInteger) intO.readObject();
             BigInteger gx = (BigInteger) intO.readObject();
             byte[] firmaValores =  (byte[])  intO.readObject();   
-           
-            boolean vfirmaValores = cliente.verificarfirma(llavepublica,firmaValores, p.toString()  ); 
+            String valores = p.toString() + g.toString() + gx.toString();
+            boolean vfirmaValores = cliente.verificarfirma(llavepublica,firmaValores, valores); 
             
 
       

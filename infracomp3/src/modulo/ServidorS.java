@@ -53,12 +53,13 @@ public class ServidorS {
                 if (vfirma == false) {
                     sc.close();
                 }
-                outO.writeObject(serv.getP());
-                outO.writeObject(serv.getG()); 
+                BigInteger p = serv.getP();
+                BigInteger g = serv.getG();
                 BigInteger gx = serv.getGX();
+                outO.writeObject(p);
+                outO.writeObject(g); 
                 outO.writeObject(gx);
-                byte[] firmaValores = serv.firmar(serv.getP().toString()  ); 
-                
+                byte[] firmaValores = serv.firmar( p.toString() + g.toString() + gx.toString()); 
                 outO.writeObject(firmaValores);
             }
             
