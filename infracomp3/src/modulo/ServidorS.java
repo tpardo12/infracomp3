@@ -50,7 +50,7 @@ public class ServidorS {
     
                 String mensaje = in.readUTF();                                      // reto del cliente
                 byte[] firmaReto = serv.firmar(mensaje);   
-                System.out.println(firmaReto);                             // firma el reto 
+                // System.out.println(firmaReto);                             // firma el reto 
                 PublicKey llavepublica = serv.getLlavepublica();                   
                 outO.writeObject(firmaReto);                                        // envia firma
                 outO.writeObject(llavepublica);                                // envia k+
@@ -90,8 +90,7 @@ public class ServidorS {
 
                 byte[] loginCifrado = (byte[]) intO.readObject();
                 byte[] contraseniaCifrado = (byte[]) intO.readObject();
-                byte[] consultaCifrada = (byte[]) intO.readObject();
-                String hmacConsulta = (String) intO.readObject();
+                
 
 
                
@@ -106,16 +105,27 @@ public class ServidorS {
                 byte[] contraseniaDescifrado = cipherc.doFinal(contraseniaCifrado);
                 String contrasenia = new String(contraseniaDescifrado);
 
+                
+                
+
+                System.out.println(login);
+                System.out.println(contrasenia);
+
+                if (login.equals("logusuario")  && contrasenia.equals("contraseniausuario")) {
+                    out.writeBoolean(true);
+                }
+                else{
+                    out.writeBoolean(false);
+                }
+
+                byte[] consultaCifrada = (byte[]) intO.readObject();
+                String hmacConsulta = (String) intO.readObject();
+
                 Cipher ciphercon = Cipher.getInstance("AES/CBC/PKCS5Padding");
                 ciphercon.init(Cipher.DECRYPT_MODE, kabKey, iv);
                 byte[] consultaDescifrado = ciphercon.doFinal(consultaCifrada);
                 String consulta = new String(consultaDescifrado);
 
-                
-
-                System.out.println(login);
-                System.out.println(contrasenia);
-                System.out.println(consulta);
                 
 
                 String respuesta = "respuesta a " + consulta;
@@ -126,7 +136,7 @@ public class ServidorS {
                 outO.writeObject(respuestaCifrada);
 
                 String hmac = Servidor.calculateHMac(kmac, respuesta);
-                System.out.println(hmac);
+                //System.out.println(hmac);
                 outO.writeObject(hmac);
 
                 

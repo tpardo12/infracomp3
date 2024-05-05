@@ -78,9 +78,10 @@ public class ClienteS {
                  System.out.println("esperando respuesta del servidor ........");
             }
 
-            String login = "loginusuario1"; // Ejemplo de login
-            String contrasenia = "contrasenia12343";  // Ejemplo contraseña 
-            
+            String login = "logusuario"; // Ejemplo de login
+            String contrasenia = "contraseniausuario";  // Ejemplo contraseña 
+
+       
 
             Cipher cipherl = Cipher.getInstance("AES/CBC/PKCS5Padding");
             SecretKeySpec kabKey = new SecretKeySpec(kab.getBytes(), "AES");
@@ -96,6 +97,17 @@ public class ClienteS {
 
 
             // espacio para la  respuesta del servidor 
+            
+
+
+
+            Boolean validacionlog = in.readBoolean();
+            if (validacionlog == false) {
+                System.out.println("usuario o contraseña incorrecta");
+            }
+            else {
+                System.out.println("logeado correctamente");
+            }
 
             String consulta = "consulta";
 
