@@ -48,48 +48,49 @@ public class ServidorS {
                 outO = new ObjectOutputStream(sc.getOutputStream());
                 intO = new ObjectInputStream(sc.getInputStream());
     
-                String mensaje = in.readUTF();                                      // reto del cliente
+
+                String mensaje = in.readUTF();                                      // paso 1 reto del cliente
                 byte[] firmaReto = serv.firmar(mensaje);   
-                // System.out.println(firmaReto);                             // firma el reto 
+                // System.out.println(firmaReto);                             // paso 2  firma el reto 
                 PublicKey llavepublica = serv.getLlavepublica();                   
-                outO.writeObject(firmaReto);                                        // envia firma
-                outO.writeObject(llavepublica);                                // envia k+
-                boolean vfirmaReto = in.readBoolean();
-                if (vfirmaReto == false) {
+                outO.writeObject(firmaReto);                                        //  paso 3 envia firma
+                outO.writeObject(llavepublica);                                // paso 3.1 envia k+
+                boolean vfirmaReto = in.readBoolean();                        //  paso 5 Recibe la confirmacion
+                if (vfirmaReto == false) {                                   //  paso 5.1 valida la confirmacion
                     sc.close();
                 }
-                BigInteger p = serv.getP();
-                BigInteger g = serv.getG();
-                BigInteger x = serv.getX();
-                BigInteger gx = serv.getGX();
+                BigInteger p = serv.getP();                                // 7.1 obtiene  P 
+                BigInteger g = serv.getG();                               //  7.2 obtiene g
+                BigInteger x = serv.getX();                              //   7.3 pbtiene x 
+                BigInteger gx = serv.getGX();                           //    7.4  obtiene Gx 
                
-                outO.writeObject(p);
-                outO.writeObject(g); 
-                outO.writeObject(gx);
+                outO.writeObject(p);                                  //    7.5 envia p
+                outO.writeObject(g);                                 //     7.6 envia g
+                outO.writeObject(gx);                               //      7.7 envia gx
                 byte[] vector = serv.generarV();
-                IvParameterSpec  iv = new IvParameterSpec(vector);
+                IvParameterSpec  iv = new IvParameterSpec(vector); //       7.8 envia vector
                 outO.writeObject(vector);
-                byte[] firmaValores = serv.firmar( p.toString() + g.toString() + gx.toString()); 
+                byte[] firmaValores = serv.firmar( p.toString() + g.toString() + gx.toString());  // 7.9 firma valores concatenados
                 outO.writeObject(firmaValores);
                 boolean vfirmaValores = in.readBoolean();
-                if (vfirmaValores == false){
+                if (vfirmaValores == false){              // 9 valida la verificacion
                     sc.close();
                 }
-                BigInteger gy = (BigInteger) intO.readObject();
+                BigInteger gy = (BigInteger) intO.readObject(); // 10 Recibe Gy
                 
-                BigInteger kmaster = (gy.modPow(x, p));
-                serv.digest(kmaster.toString());
-                String kab = serv.getKab();
-                String kmac = serv.getKmac();
+                BigInteger kmaster = (gy.modPow(x, p));  // 11b calcula la llave master
+                serv.digest(kmaster.toString());         // 11b calcula el digest
+                String kab = serv.getKab();              // 11b k simetrica
+                String kmac = serv.getKmac();            // 11b k para hmac
 
-                Boolean continuar = true;
+                Boolean continuar = true;                // envia confirmacion para continuar
 
                 out.writeBoolean(continuar);
                
                 
 
-                byte[] loginCifrado = (byte[]) intO.readObject();
-                byte[] contraseniaCifrado = (byte[]) intO.readObject();
+                byte[] loginCifrado = (byte[]) intO.readObject();        //13 entra login cifrado 
+                byte[] contraseniaCifrado = (byte[]) intO.readObject();  // 13 entra contraseña cifrada
                 
 
 
@@ -98,46 +99,58 @@ public class ServidorS {
                 SecretKeySpec kabKey = new SecretKeySpec(kab.getBytes(), "AES");
                 cipher.init(Cipher.DECRYPT_MODE, kabKey, iv);
                 byte[] loginDescifrado = cipher.doFinal(loginCifrado);
-                String login = new String(loginDescifrado);
+                String login = new String(loginDescifrado);                // 15.1 descifra log in 
 
                 Cipher cipherc = Cipher.getInstance("AES/CBC/PKCS5Padding");
                 cipherc.init(Cipher.DECRYPT_MODE, kabKey, iv);
                 byte[] contraseniaDescifrado = cipherc.doFinal(contraseniaCifrado);
-                String contrasenia = new String(contraseniaDescifrado);
+                String contrasenia = new String(contraseniaDescifrado);   // 15.2 descifra contrseña 
 
                 
                 
 
-                System.out.println(login);
-                System.out.println(contrasenia);
+                System.out.println("log in del ususario : " + login); 
+                System.out.println("COntrseña del susuario " + contrasenia);
 
-                if (login.equals("logusuario")  && contrasenia.equals("contraseniausuario")) {
+                if (login.equals("logusuario")  && contrasenia.equals("contraseniausuario")) {  // hace validaciones de log in y contraseña 
                     out.writeBoolean(true);
                 }
                 else{
                     out.writeBoolean(false);
                 }
 
-                byte[] consultaCifrada = (byte[]) intO.readObject();
-                String hmacConsulta = (String) intO.readObject();
+                byte[] consultaCifrada = (byte[]) intO.readObject();      // 17.1 recibe consulta cifrada 
+                String hmacConsulta = (String) intO.readObject();        // 18 recibe hmac
 
                 Cipher ciphercon = Cipher.getInstance("AES/CBC/PKCS5Padding");
                 ciphercon.init(Cipher.DECRYPT_MODE, kabKey, iv);
                 byte[] consultaDescifrado = ciphercon.doFinal(consultaCifrada);
-                String consulta = new String(consultaDescifrado);
+                String consulta = new String(consultaDescifrado);    // 17.2 descifra consulta  
 
                 
+                String verificarHmac = Servidor.calculateHMac(kmac, consulta) ; // 18.1 verifica hmac
+                
+                
+                if (hmacConsulta.equals(verificarHmac) ) {      
+                    System.out.println("Hmac de consulta verificado correctamente");
+                    
+                }
+                else{
+                    sc.close();
+                }
+                System.out.println("la consulta del usuario fue : " + consulta);
+
 
                 String respuesta = "respuesta a " + consulta;
 
                 Cipher cipherR = Cipher.getInstance("AES/CBC/PKCS5Padding");
                 cipherR.init(Cipher.ENCRYPT_MODE, kabKey, iv);
                 byte[] respuestaCifrada = cipherR.doFinal(respuesta.getBytes());
-                outO.writeObject(respuestaCifrada);
+                outO.writeObject(respuestaCifrada);  // 19 cifra respuesta y la envia 
 
                 String hmac = Servidor.calculateHMac(kmac, respuesta);
                 //System.out.println(hmac);
-                outO.writeObject(hmac);
+                outO.writeObject(hmac);            // envia hmac de la respuesta
 
                 
 

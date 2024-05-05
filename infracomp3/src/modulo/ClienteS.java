@@ -42,38 +42,39 @@ public class ClienteS {
             Cliente cliente = new Cliente();
             String reto = cliente.generarReto();
 
-            out.writeUTF(reto);
+            out.writeUTF(reto);                                               // 1  envia reto
 
-            byte[] firmaReto =  (byte[])  intO.readObject();       
-            System.out.println(firmaReto);                    
-            PublicKey llavepublica = (PublicKey)  intO.readObject();      
-            boolean vfirmaReto = cliente.verificarfirma(llavepublica,firmaReto, reto); 
+            byte[] firmaReto =  (byte[])  intO.readObject();                //  3 recibe  firma 
+            PublicKey llavepublica = (PublicKey)  intO.readObject();        // 3.1 recibe llave publica del servidor 
+
+            boolean vfirmaReto = cliente.verificarfirma(llavepublica,firmaReto, reto);  // 4 verifica la firma 
             out.writeBoolean(vfirmaReto);
-            BigInteger p = (BigInteger) intO.readObject(); 
+
+
+            BigInteger p = (BigInteger) intO.readObject();              //  7 recibe p,g,gx, iv
             BigInteger g = (BigInteger) intO.readObject();
             BigInteger gx = (BigInteger) intO.readObject();
-            BigInteger y = cliente.getY();
-            byte[] iv = (byte[]) intO.readObject();
+            BigInteger y = cliente.getY();                             // 7 calcula 
+            byte[] iv = (byte[]) intO.readObject();                    
             IvParameterSpec ivSpec = new IvParameterSpec(iv);
-            // firma de valores
-            byte[] firmaValores =  (byte[])  intO.readObject();   
-            String valores = p.toString() + g.toString() + gx.toString();
-            boolean vfirmaValores = cliente.verificarfirma(llavepublica,firmaValores, valores); 
-            out.writeBoolean(vfirmaValores);
-            BigInteger gy = cliente.generarGY();
-            // enviar gy
-            outO.writeObject(gy);
-            BigInteger kmaster = (gx.modPow(y, p));
-            cliente.digest(kmaster.toString());
-            String kab = cliente.getKab();
-            String kmac = cliente.getKmac();
 
-            System.out.println("kab  " + kab);
-            System.out.println("kmac " +  kmac);
+            byte[] firmaValores =  (byte[])  intO.readObject();     // 7 recibe firma de valores
+            String valores = p.toString() + g.toString() + gx.toString(); // 8 concatena los valores
+            boolean vfirmaValores = cliente.verificarfirma(llavepublica,firmaValores, valores); 
+            out.writeBoolean(vfirmaValores);                  // 8 verifica los valores
+            BigInteger gy = cliente.generarGY();             //10 genera gy
+            // enviar gy
+            outO.writeObject(gy);                          // 10 envia gy
+            BigInteger kmaster = (gx.modPow(y, p));       // 11a calcula la llave master
+            cliente.digest(kmaster.toString());          //  11a calcula el digest
+            String kab = cliente.getKab();                 // 11a Obtiene la llave simetrica para cifrado 
+            String kmac = cliente.getKmac();                // 11a Obtiene la llave simetrica para Hmac
+
+            
 
             Boolean  continuar = in.readBoolean(); 
 
-            while (continuar == false ) {
+            while (continuar == false ) {               // 12.  espera respuesta de continuar
                    
                  System.out.println("esperando respuesta del servidor ........");
             }
@@ -81,27 +82,22 @@ public class ClienteS {
             String login = "logusuario"; // Ejemplo de login
             String contrasenia = "contraseniausuario";  // Ejemplo contraseña 
 
-       
-
             Cipher cipherl = Cipher.getInstance("AES/CBC/PKCS5Padding");
             SecretKeySpec kabKey = new SecretKeySpec(kab.getBytes(), "AES");
             cipherl.init(Cipher.ENCRYPT_MODE, kabKey, ivSpec);
-            byte[] loginCifrado = cipherl.doFinal(login.getBytes());
+            byte[] loginCifrado = cipherl.doFinal(login.getBytes());  // 13. envia login cifrado 
  
             outO.writeObject(loginCifrado);
 
             Cipher cipherc = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipherc.init(Cipher.ENCRYPT_MODE, kabKey, ivSpec);
             byte[] contraseniacifrado = cipherc.doFinal(contrasenia.getBytes());
-            outO.writeObject(contraseniacifrado);
-
-
-            // espacio para la  respuesta del servidor 
-            
+            outO.writeObject(contraseniacifrado);                      // 13 envia cotraseña cifrada
 
 
 
-            Boolean validacionlog = in.readBoolean();
+
+            Boolean validacionlog = in.readBoolean();               // 16. recibe el OK o el error 
             if (validacionlog == false) {
                 System.out.println("usuario o contraseña incorrecta");
             }
@@ -109,29 +105,42 @@ public class ClienteS {
                 System.out.println("logeado correctamente");
             }
 
-            String consulta = "consulta";
+            String consulta = "consulta";                
 
             Cipher ciphercon = Cipher.getInstance("AES/CBC/PKCS5Padding");
             ciphercon.init(Cipher.ENCRYPT_MODE, kabKey, ivSpec);
             byte[] consultaCifrado = ciphercon.doFinal(consulta.getBytes());
-            outO.writeObject(consultaCifrado);
+            outO.writeObject(consultaCifrado);              // 17 envia  consulta cifrada 
 
             String hmac = Cliente.calculateHMac(kmac, consulta);
            
 
-            outO.writeObject(hmac);
+            outO.writeObject(hmac);                      // 18 envia  el Hmac de la consulta  
 
            
-            byte[] respuestaCifrada = (byte[]) intO.readObject();
-            String hmacRespuesta = (String) intO.readObject();
+            byte[] respuestaCifrada = (byte[]) intO.readObject();   // 19.1  entra la respuesta cifrada 
+            String hmacRespuesta = (String) intO.readObject();      // 20.1  entra el hmac
             
             Cipher cipherR = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipherR.init(Cipher.DECRYPT_MODE, kabKey, ivSpec);
             byte[] respuestades = cipherR.doFinal(respuestaCifrada);
-            String respuesta = new String(respuestades);
+            String respuesta = new String(respuestades);           // 21 descifra la respuesta 
+            
 
-            System.out.println("respuesta del hmac " + hmacRespuesta);
-            System.out.println("respuesta  " + respuesta);
+            String verificarHmac = Cliente.calculateHMac(kmac, respuesta) ; // 21 verifica hmac
+                
+                
+            if (hmacRespuesta.equals(verificarHmac) ) {      
+                System.out.println("Hmac de respuesta verificado correctamente");
+                
+            }
+            else{
+                System.out.println("Hmac de respuesta no  verificado correctamente");
+                sc.close();
+            }
+
+            System.out.println("la respuesta del servidor es : " + respuesta);
+            
       
         } catch (IOException es) {
             // TODO: handle exception

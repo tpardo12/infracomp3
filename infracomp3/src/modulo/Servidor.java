@@ -124,7 +124,7 @@ public class Servidor {
             String kmac = hashtext.substring(32, 64);
             this.kab = kab;
             this.kmac = kmac;
-            System.out.println(hashtext);
+          
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
