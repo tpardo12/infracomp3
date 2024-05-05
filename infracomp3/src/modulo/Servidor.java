@@ -64,8 +64,8 @@ public class Servidor {
         PrivateKey privateKey = keyPair.getPrivate();
 
         // creacion de x
-        BigInteger maxLimit = new BigInteger("5000");
-        BigInteger minLimit = new BigInteger("1000");
+        BigInteger maxLimit = new BigInteger("500000");
+        BigInteger minLimit = new BigInteger("100000");
         BigInteger bigInteger = maxLimit.subtract(minLimit);
         Random randNum = new Random();
         int len = maxLimit.bitLength();

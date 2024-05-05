@@ -14,6 +14,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.Signature;
 import java.security.SignatureException;
 
 import javax.crypto.BadPaddingException;
@@ -23,7 +24,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class NetworkClient {
+public class ClienteS {
 
 public static void main(String args[]) throws IOException, SignatureException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, Exception{
 
@@ -113,14 +114,19 @@ public static void main(String args[]) throws IOException, SignatureException, N
         }
 
         String consulta = "consulta";                
+       
+     
 
         Cipher ciphercon = Cipher.getInstance("AES/CBC/PKCS5Padding");
         ciphercon.init(Cipher.ENCRYPT_MODE, kabKey, ivSpec);
         byte[] consultaCifrado = ciphercon.doFinal(consulta.getBytes());
-        outO.writeObject(consultaCifrado);              // 17 envia  consulta cifrada 
+        outO.writeObject(consultaCifrado);  
+                                                        // 17 envia  consulta cifrada 
+        long startTime = System.currentTimeMillis();
 
         String hmac = Cliente.calculateHMac(kmac, consulta);
-       
+        long endTime = System.currentTimeMillis() - startTime; 
+        System.out.println("tiempo en generar mac  : " + endTime);
 
         outO.writeObject(hmac);                      // 18 envia  el Hmac de la consulta  
 

@@ -9,7 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 
-public class Server_X_Client {
+public class ClienteServidor {
 public static void main(String args[]){
 
 
@@ -17,7 +17,7 @@ public static void main(String args[]){
     ServerSocket ss2=null;
     System.out.println("Server Listening......");
     try{
-        ss2 = new ServerSocket(4445); // can also use static final PORT_NUM , when defined
+        ss2 = new ServerSocket(4445); 
 
     }
     catch(IOException e){
@@ -30,7 +30,7 @@ public static void main(String args[]){
         try{
             s= ss2.accept();
             System.out.println("connection Established");
-            ServerThread st=new ServerThread(s);
+            ServidorS st=new ServidorS(s);
             st.start();
 
         }

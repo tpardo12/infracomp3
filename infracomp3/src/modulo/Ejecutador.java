@@ -15,8 +15,8 @@ public class Ejecutador {
         
         Integer clientes = 16;
         for (int i = 0; i < clientes; i++) {
-            NetworkClient nc = new NetworkClient();
-            NetworkClient.main(args);
+            ClienteS nc = new ClienteS();
+            ClienteS.main(args);
         }
     }
 }

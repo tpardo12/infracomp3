@@ -34,8 +34,8 @@ public class Cliente {
 
     public Cliente(){
 
-        BigInteger maxLimit = new BigInteger("5000");
-        BigInteger minLimit = new BigInteger("1000");
+        BigInteger maxLimit = new BigInteger("500000");
+        BigInteger minLimit = new BigInteger("100000");
         BigInteger bigInteger = maxLimit.subtract(minLimit);
         Random randNum = new Random();
         int len = maxLimit.bitLength();
@@ -71,14 +71,14 @@ public class Cliente {
     public BigInteger generarGY (){
 
         
-
+        
         BigInteger result = BigInteger.ONE;
            while (y.signum() > 0) {
                     if (y.testBit(0)) result = result.multiply(g);
                     g = g.multiply(g);
                     y = y.shiftRight(1);
             }
-   
+       
         return result;
     }
 
@@ -90,7 +90,8 @@ public class Cliente {
         verificador.update(reto.getBytes());
         boolean isVerified = verificador.verify(signatureBytes);
         System.out.println("Verificacion de la firma: " + isVerified);
-
+        
+       
         return isVerified;
     }
     
@@ -127,6 +128,7 @@ public class Cliente {
     public static final String ALGORITHM = "HmacSHA256";
 
     public static String calculateHMac(String key, String data) throws Exception {
+        
         Mac sha256_HMAC = Mac.getInstance(ALGORITHM);
 
         SecretKeySpec secret_key = new SecretKeySpec(key.getBytes("UTF-8"), ALGORITHM);

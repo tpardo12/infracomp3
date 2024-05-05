@@ -32,7 +32,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 
-class ServerThread extends Thread{  
+class ServidorS extends Thread{  
 
     ServerSocket servidor = null;
     Socket sc = null; 
@@ -43,7 +43,7 @@ class ServerThread extends Thread{
     ObjectInputStream intO;
     Servidor serv;
 
-    public ServerThread(Socket s) throws NoSuchAlgorithmException{
+    public ServidorS(Socket s) throws NoSuchAlgorithmException{
         this.sc=s;
         this.serv = new Servidor();
     }
