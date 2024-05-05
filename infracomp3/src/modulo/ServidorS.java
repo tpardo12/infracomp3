@@ -9,21 +9,22 @@ import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.SignatureException;
+import java.util.Arrays;
+import java.util.Base64;
+
+import javax.crypto.Cipher;
+import javax.crypto.Mac;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class ServidorS {
 
     /**
      * @param args
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeyException
-     * @throws SignatureException
-     * @throws ClassNotFoundException 
+     * @throws Exception 
      */
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, ClassNotFoundException  {
+    public static void main(String[] args) throws Exception  {
         
         ServerSocket servidor = null;
         Socket sc = null; 
@@ -65,6 +66,9 @@ public class ServidorS {
                 outO.writeObject(p);
                 outO.writeObject(g); 
                 outO.writeObject(gx);
+                byte[] vector = serv.generarV();
+                IvParameterSpec  iv = new IvParameterSpec(vector);
+                outO.writeObject(vector);
                 byte[] firmaValores = serv.firmar( p.toString() + g.toString() + gx.toString()); 
                 outO.writeObject(firmaValores);
                 boolean vfirmaValores = in.readBoolean();
@@ -78,10 +82,54 @@ public class ServidorS {
                 String kab = serv.getKab();
                 String kmac = serv.getKmac();
 
-                System.out.println("kab  " + kab);
-                System.out.println("kmac " +  kmac);
-            
+                Boolean continuar = true;
 
+                out.writeBoolean(continuar);
+               
+                
+
+                byte[] loginCifrado = (byte[]) intO.readObject();
+                byte[] contraseniaCifrado = (byte[]) intO.readObject();
+                byte[] consultaCifrada = (byte[]) intO.readObject();
+                String hmacConsulta = (String) intO.readObject();
+
+
+               
+                Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                SecretKeySpec kabKey = new SecretKeySpec(kab.getBytes(), "AES");
+                cipher.init(Cipher.DECRYPT_MODE, kabKey, iv);
+                byte[] loginDescifrado = cipher.doFinal(loginCifrado);
+                String login = new String(loginDescifrado);
+
+                Cipher cipherc = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                cipherc.init(Cipher.DECRYPT_MODE, kabKey, iv);
+                byte[] contraseniaDescifrado = cipherc.doFinal(contraseniaCifrado);
+                String contrasenia = new String(contraseniaDescifrado);
+
+                Cipher ciphercon = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                ciphercon.init(Cipher.DECRYPT_MODE, kabKey, iv);
+                byte[] consultaDescifrado = ciphercon.doFinal(consultaCifrada);
+                String consulta = new String(consultaDescifrado);
+
+                
+
+                System.out.println(login);
+                System.out.println(contrasenia);
+                System.out.println(consulta);
+                
+
+                String respuesta = "respuesta a " + consulta;
+
+                Cipher cipherR = Cipher.getInstance("AES/CBC/PKCS5Padding");
+                cipherR.init(Cipher.ENCRYPT_MODE, kabKey, iv);
+                byte[] respuestaCifrada = cipherR.doFinal(respuesta.getBytes());
+                outO.writeObject(respuestaCifrada);
+
+                String hmac = Servidor.calculateHMac(kmac, respuesta);
+                System.out.println(hmac);
+                outO.writeObject(hmac);
+
+                
 
             }
             
@@ -92,4 +140,8 @@ public class ServidorS {
        
     }
 
+   
 }
+
+
+

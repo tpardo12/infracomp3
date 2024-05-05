@@ -14,6 +14,10 @@ import java.security.SignatureException;
 import java.util.Base64;
 import java.util.Random;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
 public class Servidor {
 
 
@@ -90,27 +94,48 @@ public class Servidor {
         return signatureBytes;
 
     }
+    public static final String ALGORITHM = "HmacSHA256";
+    public static String calculateHMac(String key, String data) throws Exception {
+        Mac sha256_HMAC = Mac.getInstance(ALGORITHM);
+
+        SecretKeySpec secret_key = new SecretKeySpec(key.getBytes("UTF-8"), ALGORITHM);
+        sha256_HMAC.init(secret_key);
+
+        return byteArrayToHex(sha256_HMAC.doFinal(data.getBytes("UTF-8")));
+    }
+
+    public static String byteArrayToHex(byte[] a) {
+        StringBuilder sb = new StringBuilder(a.length * 2);
+        for(byte b: a)
+            sb.append(String.format("%02x", b));
+        return sb.toString();
+    }
     
     public void digest ( String x){
-         try { 
-           
+        try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
-            byte[] messageDigest = md.digest(x.getBytes()); 
-            BigInteger no = new BigInteger(1, messageDigest); 
-            String hashtext = no.toString(16); 
-  
-            String kab = hashtext.substring(0, 64);
-            String kmac = hashtext.substring(64, 128);
-            System.out.println("compelto " + hashtext);
+            byte[] messageDigest = md.digest(x.getBytes());
+            BigInteger no = new BigInteger(1, messageDigest);
+            String hashtext = no.toString(16);
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+            String kab = hashtext.substring(0, 32);
+            String kmac = hashtext.substring(32, 64);
             this.kab = kab;
             this.kmac = kmac;
-            
-        } 
-  
-         
-        catch (NoSuchAlgorithmException e) { 
-            throw new RuntimeException(e); 
-        } 
+            System.out.println(hashtext);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public byte[] generarV (){
+
+        byte[] iv = new byte[16];
+        new SecureRandom().nextBytes(iv);
+        // IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        return iv;
     }
 
     public PublicKey getLlavepublica() {
