@@ -140,7 +140,7 @@ class ServidorS extends Thread{
         byte[] consultaDescifrado = ciphercon.doFinal(consultaCifrada);
         String consulta = new String(consultaDescifrado);    // 17.2 descifra consulta  
 
-        
+
         String verificarHmac = Servidor.calculateHMac(kmac, consulta) ; // 18.1 verifica hmac
         
         
@@ -152,6 +152,8 @@ class ServidorS extends Thread{
             sc.close();
         }
         System.out.println("la consulta del usuario fue : " + consulta);
+
+        
 
 
         String respuesta = "respuesta a " + consulta;
