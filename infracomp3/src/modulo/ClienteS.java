@@ -122,11 +122,10 @@ public static void main(String args[]) throws IOException, SignatureException, N
         byte[] consultaCifrado = ciphercon.doFinal(consulta.getBytes());
         outO.writeObject(consultaCifrado);  
                                                         // 17 envia  consulta cifrada 
-        long startTime = System.currentTimeMillis();
+       
 
         String hmac = Cliente.calculateHMac(kmac, consulta);
-        long endTime = System.currentTimeMillis() - startTime; 
-        System.out.println("tiempo en generar mac  : " + endTime);
+        
 
         outO.writeObject(hmac);                      // 18 envia  el Hmac de la consulta  
 

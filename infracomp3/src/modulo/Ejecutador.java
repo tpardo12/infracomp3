@@ -13,7 +13,7 @@ public class Ejecutador {
     
     public static void main(String[] args) throws SignatureException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException, Exception {
         
-        Integer clientes = 16;
+        Integer clientes = 4;
         for (int i = 0; i < clientes; i++) {
             ClienteS nc = new ClienteS();
             ClienteS.main(args);

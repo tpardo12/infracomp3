@@ -84,10 +84,13 @@ public class Servidor {
 
 
     public  byte[] firmar(String texto)  throws NoSuchAlgorithmException, InvalidKeyException, SignatureException{
+        long startTime = System.currentTimeMillis();
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(llaveprivada);
         signature.update(texto.getBytes());
         byte[] signatureBytes = signature.sign();
+        long endTime = System.currentTimeMillis() - startTime; 
+        System.out.println("tiempo en generar la firma   : " + endTime);
         
        
         
